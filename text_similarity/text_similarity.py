@@ -1,6 +1,7 @@
 """Module containing functions for calculating similarity of two texts.
 """
 import re
+from collections import defaultdict
 
 re_wd = re.compile(r"[\w']+")  # search pattern: words preserving single quotes
 
@@ -21,7 +22,7 @@ def term_freq(text):
     special_w2 = {"'ll": " will", "'m": " am", "'re": " are", "'ve": " have", "can't": "cannot", "n't": " not"}
     special_w3 = {"'s": "", "'d": ""}  # 'd removed for simplicity b/c parsing is context-based
 
-    freq_vector = {}
+    freq_vector = defaultdict(int)
     gen = (w for w in re.findall(re_wd, text.lower()))
     while True:
         try:
@@ -32,10 +33,7 @@ def term_freq(text):
             # assuming there can only be one apostrophe in a word
             if w in special_w:
                 for wd in special_w[w].split():
-                    if wd not in freq_vector:
-                        freq_vector[wd] = 1
-                    else:
-                        freq_vector[wd] += 1
+                    freq_vector[wd] += 1
 
             else:
                 l2 = [s for s in special_w2 if s in w]
@@ -44,19 +42,13 @@ def term_freq(text):
                 if l2:
                     w = w.replace(l2[0], special_w2[l2[0]])
                     for wd2 in w.split():
-                        if wd2 not in freq_vector:
-                            freq_vector[wd2] = 1
-                        else:
-                            freq_vector[wd2] += 1
+                        freq_vector[wd2] += 1
                     continue
 
                 if l3:
                     w = w.replace(l3[0], "")
 
-                if w not in freq_vector:
-                    freq_vector[w] = 1
-                else:
-                    freq_vector[w] += 1
+                freq_vector[w] += 1
 
         except StopIteration:
             break
